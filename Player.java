@@ -10,66 +10,78 @@ public class Player {
         CHAIR
     }
 
+
     private Symbol symbol;
     private int money;
     private int position;
-    private Property[] property;
+    private int turnsInJail = 0;
+    private int hasJailFreeCard = 0;
 
     public Player(Symbol symbol){
         this.symbol = symbol;
         this.money = 1500;
     }
 
-    public Player(Player that){
-        this.symbol = that.symbol;
-        this.money = that.money;
-        this.position = that.position;
-        for(int i = 0; i <property.length; i++){
-            this.property[i] = new Property(that.property[i]);
-        }
+    public Symbol getSymbol() {
+        return symbol;
     }
 
-    public void setSymbol(Symbol symbol) {
-        this.symbol = symbol;
-    }
-    public void setPosition(int position) {
-        this.position = position;
+    public int getPosition() {
+        return position;
     }
 
-    public void collectMoney(int amount) {
+    public int getMoney() {
+        return money;
+    }
+
+    public void changeMoney(int amount) {
         this.money +=amount;
-    }
-    public void payMoney(int amount) {
-        this.money -=amount;
     }
 
     public void moveSpaces(int spaces) {
-        if (spaces > 0) {
-            this.moveForward(spaces);
-        }
-        else {
-            this.moveBack(spaces);
-        }
-    }
-
-    private void moveForward(int spaces) {
         this.position += spaces;
 
-        //if(this.position )
-    }
-
-    private void moveBack(int spaces) {
-        this.position += spaces;
-
-        //if(this.position )
+        if(position >= Board.boardSize) {
+            this.position = Board.boardSize - this.position;
+            changeMoney(200);
+        }
+        else if (position < 0 ) {
+            this.position = Board.boardSize + this.position;
+        }
     }
 
     public void moveTo(int position) {
+        if (this.position > position){
+            money += 200;
+        }
         this.position = position;
     }
+    public void goToJail(Board board){
+        this.position = board.getTilePosition("Jail");
+        turnsInJail = 2;
+    }
 
-//    private int setPosition(int position, Board board) {
-//        if (position >  board.get)
-//    }
+    public void addHasJailFreeCard() {
+        hasJailFreeCard += 1;
+    }
+
+    public boolean equals(Object other) {
+        if(other == null || other.getClass() != getClass()) {
+            return false;
+        }
+        Player p = (Player) other;
+        if (symbol == p.getSymbol()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public String toString(){
+
+        return "\u001B[35m" + symbol.toString() + "\u001B[0m";
+    }
+
 
 }
+
