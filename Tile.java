@@ -1,12 +1,15 @@
-public class Tile {
+public class Tile implements Cloneable{
+
+    private int price;
     private int position;
+    private String name;
 
-    public Tile(int position) {
+
+
+    public Tile(int position, String name, int price) {
         this.position = position;
-    }
-
-    public Tile(Tile that) {
-        this.position = that.position;
+        this.name = name;
+        this.price = price;
     }
 
     public int getPosition() {
@@ -15,6 +18,33 @@ public class Tile {
     public void setPosition(int position) {
         this.position = position;
     }
+    public String getName() {
+        return name;
+    }
+
+    public String toString() {
+        return position + " " + name;
+    }
+
+    public int getPrice(){
+        return this.price;
+    }
+
+    public Tile clone(){
+        try {
+            Tile copy = (Tile) super.clone();
+            return copy;
+        }
+        catch (CloneNotSupportedException e){
+            return null;
+        }
+    }
+
+
+
+
+
 
 
 }
+
