@@ -1,26 +1,37 @@
 public class Property extends Tile{
-    public enum Color {
-        BROWN, SILVER, PINK, ORANGE, RED, YELLOW, GREEN, BLUE
-    }
 
-    private Color color;
-    private String name;
-    private int cost;
+    private Board.Color color;
+   // private int cost;
     private int rentCost;
 
-    public Property(int pos, Color color, String name, int cost, int rentCost) {
-        super(pos);
+    public Property(int position, String name, Board.Color color, int cost, int rentCost) {
+        super(position, name, cost);
         this.color = color;
-        this.name = name;
-        this.cost = cost;
+        //this.cost = cost;
         this.rentCost = rentCost;
+
     }
 
-    public Property(Property that){
-        super(that.getPosition());
-        this.color = that.color;
-        this.name = that.name;
-        this.cost = that.cost;
-        this.rentCost = that.rentCost;
+    public Board.Color getColor() {
+        return color;
+    }
+
+    public int calculateRent(boolean allOwned) {
+        if(allOwned) {
+            return 2 * rentCost;
+        }
+        else {
+            return rentCost;
+        }
+    }
+
+    public String toString() {
+
+        return super.toString() + " " + color + " " + getPrice();
+    }
+
+    public int getPrice() {
+        return super.getPrice();
     }
 }
+
