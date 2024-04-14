@@ -1,10 +1,43 @@
-public class Utility extends Tile {
-    private String name;
-    private int cost;
+public class Tile implements Cloneable{
 
-    public Utility(int position, String name, int cost){
-        super(position);
+    private int price;
+    private int position;
+    private String name;
+
+
+
+    public Tile(int position, String name, int price) {
+        this.position = position;
         this.name = name;
-        this.cost = cost;
+        this.price = price;
     }
+
+    public int getPosition() {
+        return position;
+    }
+    public void setPosition(int position) {
+        this.position = position;
+    }
+    public String getName() {
+        return name;
+    }
+
+    public String toString() {
+        return position + " " + name;
+    }
+
+    public int getPrice(){
+        return this.price;
+    }
+
+    public Tile clone(){
+        try {
+            Tile copy = (Tile) super.clone();
+            return copy;
+        }
+        catch (CloneNotSupportedException e){
+            return null;
+        }
+    }
+
 }
