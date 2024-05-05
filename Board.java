@@ -14,7 +14,9 @@ public class Board {
     private Player[] propertiesOwned;
     private Player[] players;
     private int indexForChanceCards = 0;
-    private int indexForCommunityChestCards = 16;
+    private int indexForCommunityChestCards = 0;
+
+    private Player.Symbol turn;
 
     public Board(int numOfPlayers) {
         this.board = new Tile[boardSize];
@@ -73,16 +75,6 @@ public class Board {
         shuffle(chanceDeck);
         shuffle(communityChestDeck);
 
-
-    }
-
-    public static void main(String[] args) {
-        Board b = new Board(3);
-//        for (int i = 0; i < cardInDeckSize; i++) {
-//            System.out.println(b.chanceDeck[i]);
-//            System.out.println(b.communityChestDeck[i]);
-//        }
-        System.out.println(b.getTilePosition("Tile8"));
     }
 
     public int getTilePosition(String name) {
@@ -125,6 +117,11 @@ public class Board {
 
     public Player[] getPlayers() {
         return players;
+    }
+
+    public String didStepOn(int tileCoordinate){
+        Tile steppedOn = board[tileCoordinate];
+        return steppedOn.getClass().toString();
     }
 
     public void performMove(int tileCoordinate, Player p){
@@ -221,11 +218,12 @@ public class Board {
 
     }
 
-    private Player getPropertyOwner(int tileCoordinate) {
+
+    public Player getPropertyOwner(int tileCoordinate) {
         return propertiesOwned[tileCoordinate];
     }
 
-    private boolean areAllPropertiesOwned(Color color, Player p) {;
+    public boolean areAllPropertiesOwned(Color color, Player p) {;
         for (int i = 0; i < board.length; i++) {
 
             if(board[i].getClass() == Property.class && (color == ((Property) board[i]).getColor())){
@@ -260,12 +258,17 @@ public class Board {
             else return 0;
     }
 
-    private void buyTheProperty(Player p, String answer){
+    public void buyTheProperty(Player p, String answer){
         if (answer.equals("yes")){
             propertiesOwned[p.getPosition()] = p;
             p.changeMoney(-getTileByPosition(p.getPosition()).getPrice());
         }
     }
+
+    public int getBoardSize() {
+        return board.length;
+    }
+
 
     public Tile[] getBoardTile() {
 
@@ -276,6 +279,11 @@ public class Board {
         return newArr;
 
     }
+
+    public Player.Symbol getTurn() {
+        return turn;
+    }
+
     public void getCommunityChestCard(Player player, Board board){
         Card card = board.communityChestDeck[indexForCommunityChestCards];
         System.out.println(card.getMessage());
@@ -289,7 +297,7 @@ public class Board {
 
     }
     public void getChanceCards(Player player, Board board){
-        if (indexForChanceCards >= 32){
+        if (indexForChanceCards >= 16){
             indexForChanceCards = indexForChanceCards - 16;
         }
         Card card = board.chanceDeck[indexForChanceCards];
