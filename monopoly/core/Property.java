@@ -1,15 +1,14 @@
-public class Property extends Tile{
+package monopoly.core;
+
+public class Property extends Tile {
 
     private Board.Color color;
-   // private int cost;
     private int rentCost;
 
     public Property(int position, String name, Board.Color color, int cost, int rentCost) {
         super(position, name, cost);
         this.color = color;
-        //this.cost = cost;
         this.rentCost = rentCost;
-
     }
 
     public Board.Color getColor() {
@@ -34,4 +33,3 @@ public class Property extends Tile{
         return super.getPrice();
     }
 }
-
