@@ -1,10 +1,10 @@
+package monopoly.core;
+
 public class Tile implements Cloneable{
 
     private int price;
     private int position;
     private String name;
-
-
 
     public Tile(int position, String name, int price) {
         this.position = position;
@@ -15,9 +15,11 @@ public class Tile implements Cloneable{
     public int getPosition() {
         return position;
     }
+
     public void setPosition(int position) {
         this.position = position;
     }
+
     public String getName() {
         return name;
     }
@@ -39,12 +41,4 @@ public class Tile implements Cloneable{
             return null;
         }
     }
-
-
-
-
-
-
-
 }
-
