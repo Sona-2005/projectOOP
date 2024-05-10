@@ -1,3 +1,5 @@
+package monopoly.core;
+
 public class InvalidSymbolException extends Exception{
 
     public InvalidSymbolException() {
