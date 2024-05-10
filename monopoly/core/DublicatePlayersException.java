@@ -1,3 +1,5 @@
+package monopoly.core;
+
 public class DublicatePlayersException extends Exception{
 
     public DublicatePlayersException() {
