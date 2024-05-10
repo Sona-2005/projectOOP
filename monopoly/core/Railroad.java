@@ -1,12 +1,10 @@
-public class Railroad extends Tile{
-    private final int PRICE = 200;
+package monopoly.core;
 
-   // private int cost;
+public class Railroad extends Tile {
     private int rentCost;
 
     public Railroad(int position, String name, int rent) {
         super(position, name, 200);
-       // this.cost = cost;
         this.rentCost = rent;
 
     }
@@ -33,20 +31,5 @@ public class Railroad extends Tile{
     public int getPrice() {
         return super.getPrice();
     }
-
-   /*
-    public class Railroad {
-    private final int PRICE = 200;
-    private final int RENT = 25;
-    private final int RENT_IF_TWO_OWNED = 50;
-    private final int RENT_IF_THREE_OWNED = 100;
-    private final int RENT_IF_FOUR_OWNED = 200;
-    private final int MORTGAGE_VALUE = 100;
-
-
-}
-     */
-
-
 
 }
