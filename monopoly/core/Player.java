@@ -1,3 +1,5 @@
+package monopoly.core;
+
 public class Player {
     public enum Symbol {
         IRON,
@@ -9,7 +11,6 @@ public class Player {
         CAR,
         CHAIR
     }
-
 
     private Symbol symbol;
     private int money;
@@ -41,12 +42,12 @@ public class Player {
     public void moveSpaces(int spaces) {
         this.position += spaces;
 
-        if(position >= Board.boardSize) {
-            this.position = Board.boardSize - this.position;
+        if(position >= Board.BOARD_SIZE) {
+            this.position = Board.BOARD_SIZE - this.position;
             changeMoney(200);
         }
         else if (position < 0 ) {
-            this.position = Board.boardSize + this.position;
+            this.position = Board.BOARD_SIZE + this.position;
         }
     }
 
@@ -61,9 +62,31 @@ public class Player {
         turnsInJail = 2;
     }
 
+    public int getTurnsInJail() {
+        return turnsInJail;
+    }
+
+    public void reduceTurnsInJail() {
+        this.turnsInJail--;
+    }
+
+
+    public boolean getHasJailFreeCard() {
+        if(hasJailFreeCard == 0) {
+            return false;
+        }
+        return true;
+    }
     public void addHasJailFreeCard() {
         hasJailFreeCard += 1;
     }
+    public void reduceHasJailFreeCard() {
+        hasJailFreeCard -= 1;
+    }
+    public void freeFromJail() {
+        turnsInJail = 0;
+    }
+
 
     public boolean equals(Object other) {
         if(other == null || other.getClass() != getClass()) {
@@ -79,9 +102,7 @@ public class Player {
 
     public String toString(){
 
-        return "\u001B[35m" + symbol.toString() + "\u001B[0m";
+        return symbol.toString();
     }
 
-
 }
-
