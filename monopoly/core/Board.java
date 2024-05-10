@@ -1,3 +1,5 @@
+package monopoly.core;
+
 import java.util.*;
 
 public class Board {
@@ -6,8 +8,20 @@ public class Board {
         BROWN, SILVER, PINK, ORANGE, RED, YELLOW, GREEN, BLUE
     }
 
-    public static final int boardSize = 40;
-    public static final int cardInDeckSize = 16;
+    public enum Description {
+        NOT_OWNED_PROPERTY, MY_PROPERTY, OWNED_PROPERTY,
+
+        TAX, GO_TO_JAIL,
+
+        NOT_OWNED_RAILROAD, MY_RAILROAD, OWNED_RAILROAD,
+
+        NOT_OWNED_UTILITY, MY_UTILITY, OWNED_UTILITY,
+
+        COMMUNITY, CHANCE
+    }
+
+    public static final int BOARD_SIZE = 40;
+    public static final int CARD_IN_DECK_SIZE = 16;
     private Tile[] board;
     private Card[] chanceDeck;
     private Card[] communityChestDeck;
@@ -19,7 +33,7 @@ public class Board {
     private Player.Symbol turn;
 
     public Board(int numOfPlayers) {
-        this.board = new Tile[boardSize];
+        this.board = new Tile[BOARD_SIZE];
         board[0] = new Tile(0, "Go", 0);
         board[1] = new Property(1, "Mediterranean Avenue", Color.BROWN, 60, 2);
         board[2] = new Tile(2, "Community Chest", 0);
@@ -61,15 +75,15 @@ public class Board {
         board[38] = new Tax(38, "Luxury Tax", 100);
         board[39] = new Property(39, "Boardwalk", Color.BLUE, 400, 50);
 
-        this.propertiesOwned = new Player[boardSize];
+        this.propertiesOwned = new Player[BOARD_SIZE];
         this.players = new Player[numOfPlayers];
 
-        this.chanceDeck = new Card[cardInDeckSize];
-        this.communityChestDeck = new Card[cardInDeckSize];
+        this.chanceDeck = new Card[CARD_IN_DECK_SIZE];
+        this.communityChestDeck = new Card[CARD_IN_DECK_SIZE];
 
-        for (int i = 0; i < cardInDeckSize; i++) {
+        for (int i = 0; i < CARD_IN_DECK_SIZE; i++) {
             chanceDeck[i] = Card.values()[i];
-            communityChestDeck[i] = Card.values()[i + cardInDeckSize];
+            communityChestDeck[i] = Card.values()[i + CARD_IN_DECK_SIZE];
         }
 
         shuffle(chanceDeck);
@@ -100,7 +114,11 @@ public class Board {
 
     }
 
-    public void addPlayer(Player.Symbol s) throws DublicatePlayersException{
+    public void addPlayer(Player.Symbol s) throws DublicatePlayersException {
+        if(players[0] == null) {
+            turn = s;
+        }
+
         int firstNullIndex = 0;
         for(int i = 0; i < players.length; i++) {
             if(players[i] == null) {
@@ -112,112 +130,68 @@ public class Board {
             }
         }
         players[firstNullIndex] = new Player(s);
-
     }
 
     public Player[] getPlayers() {
         return players;
     }
 
-    public String didStepOn(int tileCoordinate){
-        Tile steppedOn = board[tileCoordinate];
-        return steppedOn.getClass().toString();
-    }
-
-    public void performMove(int tileCoordinate, Player p){
-        Tile t = board[tileCoordinate];
+    public Description getDescription(Player p) {
+        Tile t = board[p.getPosition()];
         Scanner sc = new Scanner(System.in);
-        if(t.getClass() == Property.class) {
-            if(getPropertyOwner(tileCoordinate) == null) {
-                System.out.println("Would you like to buy the property " + t);
-                System.out.println("Type 'yes' or 'no'");
-                buyTheProperty(p, sc.nextLine());
+        if (t.getClass() == Property.class) {
+            if (getPropertyOwner(p.getPosition()) == null) {
+                return Description.NOT_OWNED_PROPERTY;
             }
-            else if(getPropertyOwner(tileCoordinate).equals(p)) {
-                System.out.println("You own this property");
+            else if (getPropertyOwner(p.getPosition()).equals(p)) {
+                return Description.MY_PROPERTY;
             }
             else {
-                Property property = (Property) t;
-                int cost = ((Property) t).calculateRent(areAllPropertiesOwned(property.getColor(), getPropertyOwner(tileCoordinate)));
-                p.changeMoney(-cost);
-                getPropertyOwner(tileCoordinate).changeMoney(cost);
-                System.out.println("You need to pay rent " + cost);
-
+                return Description.OWNED_PROPERTY;
             }
         }
-
         else if (t.getClass() == Tax.class) {
-            p.changeMoney(-((Tax) t).getTax());
+            return Description.TAX;
         }
-
-        else if (t.getClass() == Railroad.class){
-            if (getPropertyOwner(tileCoordinate) == null){
-                System.out.println("Would you like to buy the railroad" + t);
-                System.out.println("Type 'yes' or 'no'");
-                buyTheProperty(p, sc.nextLine());
+        else if (t.getClass() == Railroad.class) {
+            if (getPropertyOwner(p.getPosition()) == null) {
+                return Description.NOT_OWNED_RAILROAD;
             }
-            else if (getPropertyOwner(tileCoordinate).equals(p)) {
-                System.out.println("You own this railroad");
+            else if (getPropertyOwner(p.getPosition()).equals(p)) {
+                return Description.MY_RAILROAD;
             }
             else {
-                Railroad railroad = (Railroad) t;
-                int cost = railroad.calculateRent(numberOfRailroadsOwned(getPropertyOwner(tileCoordinate)));
-                p.changeMoney(cost);
-                getPropertyOwner(tileCoordinate).changeMoney(cost);
-                System.out.println("You need to pay rent " + cost);
+                return Description.OWNED_RAILROAD;
             }
         }
-
-        else if(t.getClass() == Utility.class){
-            if (propertiesOwned[tileCoordinate] == p){
-                System.out.println("You own this utility");
+        else if (t.getClass() == Utility.class) {
+            if (propertiesOwned[p.getPosition()] == p) {
+                return Description.MY_UTILITY;
             }
             else {
-                System.out.println("You stepped on " + t);
-                if (propertiesOwned[tileCoordinate] == null) {
-                    System.out.println("If you want to buy the utility" + t + " enter 'yes' if not 'no'");
-                    String answer = sc.next();
-                    buyTheProperty(p, answer);
+                if (propertiesOwned[p.getPosition()] == null) {
+                    return Description.NOT_OWNED_UTILITY;
                 }
                 else {
-                    System.out.println("You need to pay rent");
-                    System.out.println("To do so you have to roll the dice. Enter 'roll' to roll it");
-                    String command = sc.next();
-                    while (!command.equals("roll")){
-                        System.out.println("You have to roll the dice. Enter 'roll' to roll it");
-                        command = sc.next();
-                    }
-                    int[] diceRoll =  Dice.rollDice();
-
-                    for (int i = 0; i < players.length; i++) {
-                        if(numberOfUtilitiesOwned(players[i]) == 0){
-                            continue;
-                        } else if ( propertiesOwned[tileCoordinate] == p && numberOfUtilitiesOwned(players[i]) == 1) {
-                            p.changeMoney(-(4*(diceRoll[0] + diceRoll[1])));
-                            propertiesOwned[tileCoordinate].changeMoney((4*(diceRoll[0] + diceRoll[1])));
-                        } else {
-                            p.changeMoney(-(10*(diceRoll[0] + diceRoll[1])));
-                            propertiesOwned[tileCoordinate].changeMoney((10*(diceRoll[0] + diceRoll[1])));
-                        }
-                    }
+                    return Description.OWNED_UTILITY;
                 }
             }
-
         }
         else {
-            if (t.getName().equals("Community Chest")){
-                System.out.println("You get a Community Chest Card");
-                getCommunityChestCard(p,this);
+            if (t.getName().equals("Community Chest")) {
+
+                return Description.COMMUNITY;
             }
-            if (t.getName().equals("Chance")){
-                System.out.println("You get a Chance Card");
-                getChanceCards(p,this);
+            if (t.getName().equals("Chance")) {
+                return Description.CHANCE;
+            }
+            if (t.getName().equals("Go To Jail")) {
+                return Description.GO_TO_JAIL;
             }
 
         }
-
+        return null;
     }
-
 
     public Player getPropertyOwner(int tileCoordinate) {
         return propertiesOwned[tileCoordinate];
@@ -227,7 +201,7 @@ public class Board {
         for (int i = 0; i < board.length; i++) {
 
             if(board[i].getClass() == Property.class && (color == ((Property) board[i]).getColor())){
-                if (!getPropertyOwner(i).equals(p)) {
+                if (!p.equals(getPropertyOwner(i))) {
                     return false;
                 }
             }
@@ -236,7 +210,7 @@ public class Board {
         return true;
     }
 
-    private int numberOfRailroadsOwned(Player p) {
+    public int numberOfRailroadsOwned(Player p) {
         int numberOfRailroads = 0;
         String[] array = {"Reading Railroad","Pennsylvania Railroad","B&O Railroad", "Short Line"};
         for (int i = 0; i < array.length; i++) {
@@ -247,7 +221,7 @@ public class Board {
         return numberOfRailroads;
     }
 
-    private int numberOfUtilitiesOwned(Player p){
+    public int numberOfUtilitiesOwned(Player p){
             if( propertiesOwned[getTilePosition("Electric Company")] == p &&
                 propertiesOwned[getTilePosition("Water Works")] == p) {
                 return 2;
@@ -269,7 +243,6 @@ public class Board {
         return board.length;
     }
 
-
     public Tile[] getBoardTile() {
 
         Tile[] newArr =  new Tile[board.length];
@@ -284,9 +257,82 @@ public class Board {
         return turn;
     }
 
-    public void getCommunityChestCard(Player player, Board board){
+    public void changeTurn() {
+        System.out.print("positions ");
+        for (int i = 0; i < players.length; i++) {
+            System.out.print(players[i].getPosition() + " ");
+        }
+        System.out.println();
+
+        int turnIndex = -1;
+        for (int i = 0; i < players.length; i++) {
+            if(players[i].getSymbol() == turn){
+                turnIndex = i + 1;
+
+            }
+        }
+        while(true) {
+            if(turnIndex >= players.length) {
+                for(int i = 0; i < players.length; i++) {
+                    if(players[i].getTurnsInJail() == 0) {
+                        turn = players[i].getSymbol();
+                        return;
+                    }
+                    else {
+                        if(players[i].getHasJailFreeCard()) {
+                            players[i].freeFromJail();
+                            turn = players[i].getSymbol();
+                            return;
+                        }
+                        else {
+                            players[i].reduceTurnsInJail();
+                        }
+                    }
+                }
+            }
+            else {
+                for(int i = turnIndex; i < players.length; i++) {
+                    if(players[i].getTurnsInJail() == 0) {
+                        turn = players[i].getSymbol();
+                        return;
+                    }
+                    else {
+                        if(players[i].getHasJailFreeCard()) {
+                            players[i].freeFromJail();
+                            turn = players[i].getSymbol();
+                            return;
+                        }
+                        else {
+                            players[i].reduceTurnsInJail();
+                        }
+                    }
+                }
+                for(int i = 0; i < turnIndex; i++) {
+                    if(players[i].getTurnsInJail() == 0) {
+                        turn = players[i].getSymbol();
+                        return;
+                    }
+                    else {
+                        if(players[i].getHasJailFreeCard()) {
+                            players[i].freeFromJail();
+                            turn = players[i].getSymbol();
+                            return;
+                        }
+                        else {
+                            players[i].reduceTurnsInJail();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public String getCommunityChestCard(Player player, Board board){
+        if (indexForCommunityChestCards >= 16){
+            indexForCommunityChestCards = indexForCommunityChestCards - 16;
+        }
+
         Card card = board.communityChestDeck[indexForCommunityChestCards];
-        System.out.println(card.getMessage());
         card.execute(player,board);
 
         indexForCommunityChestCards++;
@@ -295,20 +341,20 @@ public class Board {
             indexForCommunityChestCards = indexForCommunityChestCards - 16;
         }
 
+        return card.getMessage();
+
     }
-    public void getChanceCards(Player player, Board board){
+
+    public String getChanceCards(Player player, Board board){
         if (indexForChanceCards >= 16){
             indexForChanceCards = indexForChanceCards - 16;
         }
         Card card = board.chanceDeck[indexForChanceCards];
-        System.out.println(card.getMessage());
         card.execute(player, board);
 
         indexForChanceCards++;
 
-        if (indexForChanceCards >= 16){
-            indexForChanceCards = indexForChanceCards - 16;
-        }
+        return card.getMessage();
     }
 
     public ArrayList<Tile> tilesOwnedByPlayer(Player p){
@@ -319,6 +365,30 @@ public class Board {
            }
         }
         return tilesOwned;
+    }
+
+    public int getAllAssetsOfPlayer(Player player) {
+        int money = 0;
+
+        for(Player p: players) {
+            if(p == player) {
+                for(Tile tile: tilesOwnedByPlayer(p)) {
+                    money += tile.getPrice();
+                }
+            }
+        }
+        return money + player.getMoney();
+    }
+
+    public void payForUtility(int sum, Player p) {
+
+        int position = p.getPosition();
+        Tile t = getBoardTile()[position];
+
+        boolean hasBoth = numberOfUtilitiesOwned(getPropertyOwner(position)) == 2;
+        int rent = ((Utility) t).calculateRent(sum, hasBoth);
+        p.changeMoney(-rent);
+        getPropertyOwner(position).changeMoney(rent);
     }
 }
 
