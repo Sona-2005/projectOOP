@@ -1,4 +1,6 @@
-public class Tax extends Tile{
+package monopoly.core;
+
+public class Tax extends Tile {
     private int tax;
 
     public Tax(int position, String name, int tax) {
@@ -9,8 +11,6 @@ public class Tax extends Tile{
     public int getTax() {
         return tax;
     }
-
-
 
     public String toString() {
         return super.toString() +  ". Pay " + tax;
